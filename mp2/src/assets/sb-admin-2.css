@@ -7920,6 +7920,7 @@ button.bg-dark:focus {
 
 .p-5 {
   padding: 3rem !important;
+  
 }
 
 .pt-5,
@@ -10872,7 +10873,6 @@ a:focus {
     height: calc(20rem - 43px) !important;
   }
 }
-
 .bg-login-image img {
   margin-top: 4rem;
   margin-left: 1rem;

@@ -1,12 +1,26 @@
 import {Container, Nav, Navbar} from 'react-bootstrap';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import "../assets/sb-admin-2.css"
 import "../assets/font-awesome/css/font-awesome.css"
 import name from "../img/name.png"
 import icon from "../img/Icon.png" 
 
+import axios from "axios";
 import person from "../img/undraw_profile.svg"
 const Topbar=()=> {
+    const [item, setItem] = useState([]);
+    useEffect(()=>{
+        const fetchData= async ()=>{
+            try {
+                const response = await axios.get(`http://localhost:3002/api/logInDetails`);
+                setItem(response.data.data);
+                console.log(response.data.data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+        fetchData()
+    },);
   return (
     <>
               <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -57,12 +71,22 @@ const Topbar=()=> {
                         
                         {/* <!-- Nav Item - User Information --> */}
                         <li className="nav-item dropdown no-arrow">
+                            
+                            {item.sort((a, b) => a.ITEM_ID - b.ITEM_ID).map((item)=>{
+                                        return(
+                                            <>
                             <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span className="mr-2 d-none d-lg-inline text-gray-600 small">Juan Dela Cruz</span>
+                                    
+                                <span className="mr-2 d-none d-lg-inline text-gray-600 small">{item.USER_NAME}</span>
                                 <img className="img-profile rounded-circle"
                                     src={person}/>
                             </a>
+                            </>
+                                            )}
+                                    )}
+                            
+                        
                             {/* <!-- Dropdown - User Information --> */}
                             <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
@@ -84,7 +108,7 @@ const Topbar=()=> {
                                 </a>
                             </div>
                         </li>
-                        <li className="nav-item dropdown no-arrow"><a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        <li className="nav-item dropdown no-arrow"><a className="nav-link dropdown-toggle" href="/logOut" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <p className="mr-2 d-none d-lg-inline text-gray-600 small">LogOut</p>
                             </a></li>

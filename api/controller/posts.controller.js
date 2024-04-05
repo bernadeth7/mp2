@@ -47,6 +47,21 @@ const postsController={
         }
     },
     //
+    getLogIn: async(req,res)=>{
+        try {
+            const sql = "Select * from login_tb left join user_tb on login_tb.USER_ID=user_tb.USER_ID;"
+            const [rows, fields] = await pool.query(sql)
+            res.json({
+                data: rows
+            })
+        } catch (error) {
+            res.json({
+                status: error
+            })
+        }
+    },
+
+    //
     getListOfNearExpiry: async(req,res)=>{
         try {
             const sql = "SELECT * FROM transaction_tb `t` WHERE DATEDIFF(t.TRANSAC_EXPIRY, NOW()) BETWEEN 0 AND 5;"
@@ -169,6 +184,75 @@ const postsController={
             })
         }
     },
+    createLogIn: async(req,res)=>{
+        try {
+            const {USER_ID} = req.body;
+            const sql = "INSERT into `rrmis_db`.`login_tb`(`USER_ID`) Values(?);"
+            const [rows, fields] = await pool.query(sql, [USER_ID])
+            res.json({
+                success: true,
+                data: rows,
+                message: "Item inserted successfully"
+            })
+        } catch (error) {
+            res.json({
+                status: error
+            })
+        }
+    },
+    //
+    createNewUser: async(req,res)=>{
+        try {
+            const {USER_NAME, USER_EMAIL, USER_PASSWORD} = req.body;
+            const sql = "Insert into `rrmis_db`.`user_tb` (`USER_NAME`, `USER_EMAIL`, `USER_PASSWORD`) values (?,?,?)"
+            const [rows, fields] = await pool.query(sql, [USER_NAME, USER_EMAIL, USER_PASSWORD])
+            res.json({
+                success: true,
+                data: rows,
+                message: "Item inserted successfully"
+            })
+        } catch (error) {
+            res.json({
+                status: error
+            })
+        }
+    },
+    //
+    checkIfExisting: async(req,res)=>{
+        try {
+            const {USER_EMAIL, USER_PASSWORD} = req.body;
+            const sql = "SELECT * FROM user_tb WHERE user_tb.USER_EMAIL = ? AND user_tb.USER_PASSWORD = ?"
+            const [rows, fields] = await pool.query(sql, [ USER_EMAIL, USER_PASSWORD])
+            if (rows.length > 0) {
+                const user = rows[0];
+                // If a user with the given email exists, return success and user data
+                res.json({
+                    success: true,
+                    data: rows,
+                    message: "User exists",
+                    exists:true,
+                    data: {
+                        USER_ID: user.USER_ID,
+                        // Include other user data if needed
+                    },
+                });
+            } else {
+                // If no user found with the given email, return failure
+                res.json({
+                    success: false,
+                    message: "User does not exist",
+                    exists:false
+                });
+            }
+        } catch (error) {
+            // If an error occurs during database query or processing, return error message
+            res.json({
+                success: false,
+                message: "Error occurred while checking user",
+                error: error.message
+            });
+        }
+    },
     //
     createNewTransaction: async(req,res)=>{
         try {
@@ -211,6 +295,20 @@ const postsController={
             
             const sql1 = "DELETE FROM transaction_tb where transaction_tb.TRANSAC_ID=?"
             const [rows1, fields1] = await pool.query(sql1,[id])
+            res.json({
+                status: 'success'
+            })
+        } catch (error) {
+            res.json({
+                status: error
+            })
+        }
+    },
+    //
+    logOut: async(req,res)=>{
+        try {
+            const sql1 = "DELETE From login_tb"
+            const [rows1, fields1] = await pool.query(sql1)
             res.json({
                 status: 'success'
             })
